@@ -42,17 +42,27 @@ microchip_atsha204a:
 
 ### Single-Wire RMT Transport
 
-Use `transport: swi_rmt` on an original ESP32 with ESP-IDF 5.5.4 or newer. This transport uses one
-RMT transmit channel and exclusive use of UART2. It requires a pull-up on the signal wire.
+Use `transport: swi_rmt` on an original ESP32 with ESP-IDF 5.5.4 or newer. RMT transmits on the
+`rx_pin` of a dedicated, receive-only [UART bus](/components/uart/). Connect that GPIO to the
+signal wire with a pull-up. Use a non-inverted, output-capable GPIO other than GPIO3, GPIO9 or
+GPIO16, which can bypass the GPIO matrix. Set `rx_buffer_size` to at least 680 bytes.
 
 ```yaml
+uart:
+  id: atsha204a_rx
+  rx_pin: GPIO21
+  baud_rate: 230400
+  data_bits: 7
+  parity: NONE
+  stop_bits: 1
+  rx_buffer_size: 1024
+
 microchip_atsha204a:
   transport: swi_rmt
-  pin: GPIOXX
+  uart_id: atsha204a_rx
 ```
 
-- **pin** (**Required**, [Pin Schema](/guides/configuration-types/#pin-schema)): The non-inverted
-  GPIO connected to the signal wire. Choose a pin other than GPIO16, the dedicated UART2 RX pin.
+- **uart_id** (*Optional*, [ID](/guides/configuration-types/#id)): The UART bus to use.
 - **rmt_symbols** (*Optional*, int): The RMT memory allocation. The original ESP32 uses one
   block of 64 symbols.
 
