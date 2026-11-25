@@ -125,18 +125,28 @@ All other options from [Binary Sensor](/components/binary_sensor/) apply to the 
 
 This action sends an opcode and its arguments. See the [datasheet][datasheet] for each command's
 parameter and data encodings. The automation continues after issuing the request. Use `on_result`
-for steps that need the reply. Polling is suspended while a command or session is active. Set `id: chip`
-on the hub to use the following example.
+for steps that need the reply. Polling is suspended while a command or session is active.
+
+This example reads `UserExtra`, the first byte of configuration word `0x15`, when the chip is
+detected. Set `id: chip` and `update_interval: 1s` on the hub to enable the presence check.
 
 ```yaml
-- microchip_atsha204a.command:
-    id: chip
-    opcode: dev_rev
-    on_result:
-      - lambda: |-
-          if (status == 0 && data.size() == 4) {
-            ESP_LOGI("atsha204a", "Revision %02X%02X%02X%02X", data[0], data[1], data[2], data[3]);
-          }
+binary_sensor:
+  - platform: microchip_atsha204a
+    atsha204a_id: chip
+    name: "Chip Present"
+    trigger_on_initial_state: true
+    on_press:
+      - microchip_atsha204a.command:
+          id: chip
+          opcode: read
+          param1: 0x00  # Configuration zone, four-byte read
+          param2: 0x15
+          on_result:
+            - lambda: |-
+                if (status == 0 && data.size() == 4) {
+                  ESP_LOGI("atsha204a", "UserExtra = 0x%02X", static_cast<unsigned>(data[0]));
+                }
 ```
 
 - **id** (**Required**, [ID](/guides/configuration-types/#id)): The hub to use.
