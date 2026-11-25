@@ -18,14 +18,20 @@ the chip's commands from automations. See the [Microchip datasheet][datasheet] f
 
 ## Configuration
 
-This example uses the I²C version of the chip and requires an [I²C bus](/components/i2c/) at 100 kHz or
-slower. Use a dedicated bus if other devices respond to the general-call address (`0x00`), which the
-component uses to wake the chip.
+For `transport: i2c`, configure a top-level [I²C bus](/components/i2c/) at 100 kHz or slower.
 
 ```yaml
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+  frequency: 100kHz
+
 microchip_atsha204a:
   transport: i2c
 ```
+
+The component wakes the chip using the general-call address (`0x00`). Use a dedicated bus if another
+device responds to that address.
 
 ### Configuration Variables
 
@@ -37,7 +43,8 @@ microchip_atsha204a:
 
 ### I²C Transport
 
-- **i2c_id** (*Optional*, [ID](/guides/configuration-types/#id)): The I²C bus to use.
+- **i2c_id** (*Optional*, [ID](/guides/configuration-types/#id)): The I²C bus to use. Set this if you have
+  more than one bus.
 - **address** (*Optional*, int): The chip's 7-bit address. Defaults to `0x64`.
 
 ### Single-Wire RMT Transport
